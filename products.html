@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Delux Mart | Home</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .search-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .search-input {
+      padding: 0.8rem 1rem;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      width: 300px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    
+    .search-input:focus {
+      border-color: #007bff;
+    }
+    
+    .search-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+    
+    .search-btn:hover {
+      background: #0056b3;
+    }
+    
+    .clear-search-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+    
+    .clear-search-btn:hover {
+      background: #545b62;
+    }
+    
+    .advanced-query-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .advanced-query-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    
+    .product-card.hidden {
+      display: none;
+    }
+    
+    .filter-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .filter-group label {
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .filter-select {
+      padding: 0.5rem;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    
+    .filter-select:focus {
+      border-color: #007bff;
+    }
+    
+    .filter-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+    
+    .filter-btn:hover {
+      background: #218838;
+    }
+    
+    .clear-filter-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+    
+    .clear-filter-btn:hover {
+      background: #c82333;
+    }
+    
+    .rating-section {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 5px;
+    }
+    
+    .rating-input {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .rating-stars {
+      display: flex;
+      gap: 0.2rem;
+    }
+    
+    .star {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #ddd;
+      transition: color 0.3s;
+    }
+    
+    .star.active {
+      color: #ffc107;
+    }
+    
+    .review-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-top: 0.5rem;
+      resize: vertical;
+    }
+    
+    .submit-rating-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    
+    .submit-rating-btn:hover {
+      background: #0056b3;
+    }
+    
+    .average-rating {
+      font-weight: bold;
+      color: #28a745;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/images/Logo1.png" height="45px" width="50px">
+    <div class="logo">DeLux Mart</div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/cart" id="cartLink">Cart</a></li>
+        <li><a href="/orders" id="ordersLink">Orders</a></li>
+        <li><a href="/loginpage" id="loginLink">Login</a></li>
+        <li><a href="#" id="logoutLink" style="display: none;">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="products">
+    <h2>Our Products</h2>
+    
+    <!-- Search and Filter Bar -->
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="🔍 Search products..." class="search-input">
+      <button id="searchBtn" class="search-btn">Search</button>
+      <button id="clearSearchBtn" class="clear-search-btn">Clear</button>
+      <button id="advancedQueryBtn" class="advanced-query-btn" style="display: none;">
+        🤖 AI-Powered Search
+      </button>
+    </div>
+    
+    <!-- Filter Options -->
+    <div class="filter-container">
+      <div class="filter-group">
+        <label for="priceFilter">Price Range:</label>
+        <select id="priceFilter" class="filter-select">
+          <option value="">All Prices</option>
+          <option value="0-20">$0 - $20</option>
+          <option value="20-50">$20 - $50</option>
+          <option value="50-100">$50 - $100</option>
+          <option value="100+">$100+</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="categoryFilter">Category:</label>
+        <select id="categoryFilter" class="filter-select">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+      
+      <div class="filter-group" style="display:none">
+        <label for="ratingFilter">Rating:</label>
+        <select id="ratingFilter" class="filter-select">
+          <option value="">All Ratings</option>
+          <option value="5">5 Stars</option>
+          <option value="4">4+ Stars</option>
+          <option value="3">3+ Stars</option>
+          <option value="2">2+ Stars</option>
+        </select>
+      </div>
+      
+      <button id="applyFiltersBtn" class="filter-btn">Apply Filters</button>
+      <button id="clearFiltersBtn" class="clear-filter-btn">Clear Filters</button>
+    </div>
+    
+    <div class="product-grid" id="productGrid"></div>
+
+    
+    </div>
+    
+  </section>
+
+  <footer>
+    <p>&copy; 2025 DeLux Mart. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+    const productGrid = document.getElementById('productGrid');
+
+    try {
+      const response = await fetch('/api/products');
+      const data = await response.json();
+
+      if (data.success && data.products.length > 0) {
+        const predefined = ['Mobiles','Men Clothing','Women Clothing','Kids Clothing','General items','Accessories'];
+        const existing = Array.from(new Set(data.products.map(p => (p.category || '').trim()).filter(Boolean)));
+        const extra = existing.filter(c => !predefined.map(x=>x.toLowerCase()).includes(c.toLowerCase()));
+        const categorySelect = document.getElementById('categoryFilter');
+        [...predefined, ...extra].forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          categorySelect.appendChild(opt);
+        });
+
+        productGrid.innerHTML = data.products.map((product, index) => {
+          const productId = `product${index + 1}`;
+          return `
+            <div class="product-card" data-price="${product.price}" data-rating="0" data-category="${product.category || ''}">
+              <a href="/product/${product._id}"><img src="${product.image}" alt="${product.name}"></a>
+              <h3>${product.name}</h3>
+              <div class="rating" data-product-id="${productId}"style="display:none">⭐ ⭐ ⭐ ⭐ ☆</div>
+              <p class="price">$${parseFloat(product.price).toFixed(2)}</p>
+              <button class="cart-btn"
+                      data-product-id="${productId}"
+                      data-product-name="${product.name}"
+                      data-product-price="${product.price}"
+                      data-product-image="${product.image}""
+                      data-seller-email="${product.email}">
+                Add to Cart
+              </button>
+            </div>
+          `;
+        }).join('');
+        
+      const cartButtons = document.querySelectorAll('.cart-btn');
+      cartButtons.forEach(button => {
+        button.addEventListener('click', async function () {
+          const userEmail = localStorage.getItem('userEmail');
+          if (!userEmail) {
+            alert('Please login first to add items to cart');
+            window.location.href = '/loginpage';
+            return;
+          }
+
+          const productId = this.getAttribute('data-product-id');
+          const productName = this.getAttribute('data-product-name');
+          const productPrice = this.getAttribute('data-product-price');
+          const productImage = this.getAttribute('data-product-image');
+          const sellerEmail=this.getAttribute('data-seller-email')
+          const quantity= parseInt(window.prompt("Enter the quantity:"));
+          try {
+            const response = await fetch('/add-to-cart', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: userEmail,
+                productId,
+                productName,
+                productPrice,
+                productImage,
+                quantity,
+                sellerEmail
+              })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              this.textContent = 'Added to Cart';
+              this.style.backgroundColor = '#28a745';
+              this.disabled = true;
+              alert(data.message);
+            } else {
+              alert(data.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error adding product to cart. Please try again.');
+          }
+        });
+      });
+
+    } else {
+      productGrid.innerHTML = '<p>No products found.</p>';
+    }
+  } catch (error) {
+    console.error('Failed to load products:', error);
+    productGrid.innerHTML = '<p>Error loading products.</p>';
+  }
+  });
+    // Check authentication status and update navigation
+    function updateNavigation() {
+      const userEmail = localStorage.getItem('userEmail');
+      const loginLink = document.getElementById('loginLink');
+      const logoutLink = document.getElementById('logoutLink');
+      const advancedQueryBtn = document.getElementById('advancedQueryBtn');
+      
+      if (userEmail) {
+        // User is logged in
+        loginLink.style.display = 'none';
+        logoutLink.style.display = 'inline';
+        // Show advanced query button for logged-in users
+        if (advancedQueryBtn) {
+          advancedQueryBtn.style.display = 'inline-block';
+        }
+      } else {
+        // User is not logged in
+        loginLink.style.display = 'inline';
+        logoutLink.style.display = 'none';
+        // Hide advanced query button for non-logged-in users
+        if (advancedQueryBtn) {
+          advancedQueryBtn.style.display = 'none';
+        }
+      }
+    }
+
+    // Logout functionality
+    document.getElementById('logoutLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userName');
+      updateNavigation();
+      window.location.href = '/';
+    });
+
+    // Search functionality
+    function performSearch() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      const productCards = document.querySelectorAll('.product-card');
+      let visibleCount = 0;
+      
+      productCards.forEach(card => {
+        const productName = card.querySelector('h3').textContent.toLowerCase();
+        const productDescription = card.querySelector('.rating').textContent.toLowerCase();
+        const productCategory = (card.getAttribute('data-category') || '').toLowerCase();
+        
+        if (productName.includes(searchTerm) || productDescription.includes(searchTerm) || productCategory.includes(searchTerm)) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      
+      // Show message if no products found
+      const noResultsMsg = document.getElementById('noResultsMsg');
+      if (visibleCount === 0 && searchTerm !== '') {
+        if (!noResultsMsg) {
+          const msg = document.createElement('div');
+          msg.id = 'noResultsMsg';
+          msg.style.textAlign = 'center';
+          msg.style.padding = '2rem';
+          msg.style.color = '#666';
+          msg.innerHTML = '<h3>🔍 No products found</h3><p>Try a different search term</p>';
+          document.querySelector('.product-grid').appendChild(msg);
+        }
+      } else {
+        if (noResultsMsg) {
+          noResultsMsg.remove();
+        }
+      }
+    }
+    
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      const productCards = document.querySelectorAll('.product-card');
+      productCards.forEach(card => {
+        card.classList.remove('hidden');
+      });
+      const noResultsMsg = document.getElementById('noResultsMsg');
+      if (noResultsMsg) {
+        noResultsMsg.remove();
+      }
+    }
+    
+  
+
+
+    // Filter functionality
+    function applyFilters() {
+      const priceFilter = document.getElementById('priceFilter').value;
+      const categoryFilter = document.getElementById('categoryFilter').value;
+      const ratingFilter = document.getElementById('ratingFilter').value;
+      const productCards = document.querySelectorAll('.product-card');
+      let visibleCount = 0;
+      
+      productCards.forEach(card => {
+        const price = parseFloat(card.getAttribute('data-price'));
+        const rating = parseInt(card.getAttribute('data-rating'));
+        const category = (card.getAttribute('data-category') || '').toLowerCase();
+        let showCard = true;
+        
+        // Apply price filter
+        if (priceFilter) {
+          const [min, max] = priceFilter.split('-').map(p => p === '+' ? Infinity : parseFloat(p));
+          if (price < min || (max !== Infinity && price > max)) {
+            showCard = false;
+          }
+        }
+        
+        if (categoryFilter && showCard) {
+          if (category !== categoryFilter.toLowerCase()) {
+            showCard = false;
+          }
+        }
+        
+        // Apply rating filter
+        if (ratingFilter && showCard) {
+          if (rating < parseInt(ratingFilter)) {
+            showCard = false;
+          }
+        }
+        
+        if (showCard) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      
+      // Show message if no products found
+      const noResultsMsg = document.getElementById('noResultsMsg');
+      if (visibleCount === 0) {
+        if (!noResultsMsg) {
+          const msg = document.createElement('div');
+          msg.id = 'noResultsMsg';
+          msg.style.textAlign = 'center';
+          msg.style.padding = '2rem';
+          msg.style.color = '#666';
+          msg.innerHTML = '<h3>🔍 No products found</h3><p>Try adjusting your filters</p>';
+          document.querySelector('.product-grid').appendChild(msg);
+        }
+      } else {
+        if (noResultsMsg) {
+          noResultsMsg.remove();
+        }
+      }
+    }
+    
+    function clearFilters() {
+      document.getElementById('priceFilter').value = '';
+      document.getElementById('categoryFilter').value = '';
+      document.getElementById('ratingFilter').value = '';
+      const productCards = document.querySelectorAll('.product-card');
+      productCards.forEach(card => {
+        card.classList.remove('hidden');
+      });
+      const noResultsMsg = document.getElementById('noResultsMsg');
+      if (noResultsMsg) {
+        noResultsMsg.remove();
+      }
+    }
+    
+    // Rating functionality
+    function initializeRatingStars() {
+      const ratingStars = document.querySelectorAll('.rating-stars');
+      
+      ratingStars.forEach(starsContainer => {
+        const stars = starsContainer.querySelectorAll('.star');
+        let selectedRating = 0;
+        
+        stars.forEach((star, index) => {
+          star.addEventListener('click', function() {
+            selectedRating = index + 1;
+            
+            // Update star display
+            stars.forEach((s, i) => {
+              if (i < selectedRating) {
+                s.classList.add('active');
+              } else {
+                s.classList.remove('active');
+              }
+            });
+          });
+        });
+      });
+    }
+    
+    function submitRating(productId, productName, rating, review) {
+      const userEmail = localStorage.getItem('userEmail');
+      
+      if (!userEmail) {
+        alert('Please login first to rate products');
+        window.location.href = '/loginpage';
+        return;
+      }
+      
+      fetch('/add-rating', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          productId,
+          productName,
+          rating,
+          review
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('✅ Rating submitted successfully!');
+          loadProductRatings(productId);
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('❌ Error submitting rating. Please try again.');
+      });
+    }
+    
+    function loadProductRatings(productId) {
+      fetch(`/get-ratings/${productId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            const averageRatingElement = document.querySelector(`[data-product-id="${productId}"].average-rating`);
+            if (averageRatingElement) {
+              averageRatingElement.textContent = `Average Rating: ${data.averageRating} ⭐`;
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error loading ratings:', error);
+        });
+    }
+    
+    // Add to cart functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      updateNavigation();
+      
+      // Add search event listeners
+      document.getElementById('searchBtn').addEventListener('click', performSearch);
+      document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+      document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          performSearch();
+        }
+      });
+      
+      // Add advanced query button listener
+      const advancedQueryBtn = document.getElementById('advancedQueryBtn');
+      if (advancedQueryBtn) {
+        advancedQueryBtn.addEventListener('click', function() {
+          window.location.href = '/rec';
+        });
+      }
+      
+      // Add filter event listeners
+      document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+      document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+      
+      // Initialize rating stars
+      initializeRatingStars();
+      
+      // Add click event listeners to all cart buttons
+      const cartButtons = document.querySelectorAll('.cart-btn');
+      
+      cartButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+          const userEmail = localStorage.getItem('userEmail');
+          
+          if (!userEmail) {
+            alert('Please login first to add items to cart');
+            window.location.href = '/loginpage';
+            return;
+          }
+          
+          const productId = this.getAttribute('data-product-id');
+          const productName = this.getAttribute('data-product-name');
+          const productPrice = this.getAttribute('data-product-price');
+          const productImage = this.getAttribute('data-product-image');
+          
+          try {
+            const response = await fetch('/add-to-cart', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: userEmail,
+                productId,
+                productName,
+                productPrice,
+                productImage
+              })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              // Change button text to show success
+              this.textContent = 'Added to Cart';
+              this.style.backgroundColor = '#28a745';
+              this.disabled = true;
+              
+              // Show success message
+              alert(data.message);
+            } else {
+              alert(data.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error adding product to cart. Please try again.');
+          }
+        });
+        
+        // Add rating button functionality
+        const ratingButtons = document.querySelectorAll('.submit-rating-btn');
+        ratingButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            const productName = this.getAttribute('data-product-name');
+            const ratingContainer = this.closest('.rating-section');
+            const stars = ratingContainer.querySelectorAll('.star.active');
+            const review = ratingContainer.querySelector('.review-input').value;
+            
+            if (stars.length === 0) {
+              alert('Please select a rating');
+              return;
+            }
+            
+            const rating = stars.length;
+            submitRating(productId, productName, rating, review);
+          });
+        });
+        
+        // Add rating section toggle functionality
+        const ratingSections = document.querySelectorAll('.rating-section');
+        ratingSections.forEach(section => {
+          const productCard = section.closest('.product-card');
+          const ratingDisplay = productCard.querySelector('.rating');
+          
+          ratingDisplay.addEventListener('click', function() {
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

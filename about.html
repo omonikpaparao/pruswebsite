@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us | DeLux Mart</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <img src="/images/Logo1.png" height="45px" width="50px">
+    <div class="logo">DeLux Mart</div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/about" class="active">About</a></li>
+        <li><a href="/cart" id="cartLink">Cart</a></li>
+        <li><a href="/orders" id="ordersLink">Orders</a></li>
+        <li><a href="/loginpage" id="loginLink">Login</a></li>
+        <li><a href="#" id="logoutLink" style="display: none;">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="about-hero">
+    <div class="hero-text">
+      <h1>About DeLux Mart</h1>
+      <p>Your trusted destination for everyday essentials and beyond.</p>
+    </div>
+  </section>
+
+  <section class="about-content">
+    <div class="about-container">
+      <h2>Who We Are</h2>
+      <p>DeLux Mart is an online shopping platform built with a mission — to bring convenience, affordability, and quality to your fingertips. We specialize in fashion, electronics, lifestyle, and everyday essentials, all in one place.</p>
+
+      <h2>Our Vision</h2>
+      <p>To become the most customer-centric e-commerce platform by delivering value, simplicity, and satisfaction with every order.</p>
+
+      <h2>What Makes Us Different</h2>
+      <ul>
+        <li>✅ Vast selection of top-rated products</li>
+        <li>🚚 Fast and reliable delivery</li>
+        <li>💬 Friendly and helpful customer service</li>
+        <li>🔒 Secure and smooth checkout experience</li>
+      </ul>
+
+      <h2>Our Story</h2>
+      <p>Founded in 2025 by a team of Tech Force and retail enthusiasts, DeLux Mart was created to bridge the gap between high-quality products and affordability. We started small — now we deliver across cities and towns, empowering customers with confidence and ease.</p>
+
+      <h2>Contact Us</h2>
+      <p>Our Team<br>1. N. Lavanya Sri<br>2. N. Durga Bhavani<br>3. O. Monik Paparao</p>
+      <p>Have queries or feedback? We’re here to help! Email us at <a href="mailto:v647414@gmail.com">v647414@gmail.com</a></p>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 DeLux Mart. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Check authentication status and update navigation
+    function updateNavigation() {
+      const userEmail = localStorage.getItem('userEmail');
+      const loginLink = document.getElementById('loginLink');
+      const logoutLink = document.getElementById('logoutLink');
+      
+      if (userEmail) {
+        // User is logged in
+        loginLink.style.display = 'none';
+        logoutLink.style.display = 'inline';
+      } else {
+        // User is not logged in
+        loginLink.style.display = 'inline';
+        logoutLink.style.display = 'none';
+      }
+    }
+
+    // Logout functionality
+    document.getElementById('logoutLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userName');
+      updateNavigation();
+      window.location.href = '/';
+    });
+
+    // Update navigation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateNavigation();
+    });
+  </script>
+</body>
+</html>

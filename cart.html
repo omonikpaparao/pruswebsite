@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cart | DeLux Mart</title>
+  <link rel="icon" href="/images/Logo1.png" type="image/x-icon">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .cart-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .cart-item { display: flex; align-items: center; background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .cart-item img { width: 100px; height: 100px; object-fit: cover; border-radius: 10px; margin-right: 1rem; }
+    .cart-item-details { flex: 1; }
+    .cart-item-price { font-weight: bold; color: #28a745; font-size: 1.2rem; }
+    .total-section { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 2rem; }
+    .payment-section { margin-top: 2rem; }
+    .payment-options { display: flex; gap: 1rem; margin: 1rem 0; }
+    .payment-option { padding: 1rem 2rem; border: 2px solid #007bff; border-radius: 5px; cursor: pointer; background: white; transition: all 0.3s; }
+    .payment-option.selected { background: #007bff; color: white; }
+    .pay-btn { background: #28a745; color: white; border: none; padding: 1rem 2rem; border-radius: 5px; font-size: 1.1rem; cursor: pointer; margin-top: 1rem; }
+    .pay-btn:hover { background: #218838; }
+    .empty-cart { text-align: center; padding: 3rem; color: #666; }
+    .delete-btn { background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; font-size: 0.9rem; margin-left: 1rem; }
+    .delete-btn:hover { background: #c82333; }
+    .cart-item-actions { display: flex; align-items: center; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/images/Logo1.png" height="45px" width="50px">
+    <div class="logo">DeLux Mart</div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="#" id="cartLink" class="active">Cart</a></li>
+        <li><a href="/orders" id="ordersLink">Orders</a></li>
+        <li><a href="/loginpage" id="loginLink">Login</a></li>
+        <li><a href="#" id="logoutLink" style="display: none;">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="cart-container">
+    <h1>🛒 Your Cart</h1>
+    <div id="cartItems"></div>
+    <div id="totalSection" style="display: none;">
+      <div class="total-section">
+        <h2>Order Summary</h2>
+        <div id="orderSummary"></div>
+        <div class="payment-section">
+          <h5><label for="address">Your Address:</label></h5>
+          <textarea id="address" name="address" placeholder="Enter your delivery address" required></textarea>
+          <h3>Payment Method</h3>
+          
+          <div class="payment-options">
+            
+            <div class="payment-option" data-mode="COD">COD</div>
+           
+          </div>
+          <button class="pay-btn" id="payBtn"> Book the Order</button>
+        </div>
+      </div>
+    </div>
+    <div id="emptyCart" class="empty-cart" style="display: none;">
+      <h2>🛒 Your cart is empty</h2>
+      <p>Add some products to your cart to continue shopping!</p>
+      <a href="/products" class="btn">Continue Shopping</a>
+    </div>
+  </div>
+
+  <footer><p>&copy; 2025 DeLux Mart. All rights reserved.</p></footer>
+
+  <script>
+    function updateNavigation() {
+      const userEmail = localStorage.getItem('userEmail');
+      const loginLink = document.getElementById('loginLink');
+      const logoutLink = document.getElementById('logoutLink');
+      if (userEmail) {
+        loginLink.style.display = 'none';
+        logoutLink.style.display = 'inline';
+      } else {
+        loginLink.style.display = 'inline';
+        logoutLink.style.display = 'none';
+        window.location.href = '/loginpage';
+      }
+    }
+
+    document.getElementById('logoutLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userName');
+      updateNavigation();
+      window.location.href = '/';
+    });
+
+    async function loadCart() {
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) return window.location.href = '/loginpage';
+
+      try {
+        const response = await fetch(`/get-cart/${userEmail}`);
+        const data = await response.json();
+        if (data.success) {
+          displayCartItems(data.cartItems, data.totalAmount);
+        } else {
+          showEmptyCart();
+        }
+      } catch (err) {
+        console.error('Error loading cart:', err);
+        showEmptyCart();
+      }
+    }
+
+    function displayCartItems(cartItems, totalAmount) {
+      const cartContainer = document.getElementById('cartItems');
+      const totalSection = document.getElementById('totalSection');
+      const emptyCart = document.getElementById('emptyCart');
+
+      if (cartItems.length === 0) return showEmptyCart();
+
+      cartContainer.innerHTML = cartItems.map(item => `
+        <div class="cart-item">
+          <img src="${item.productImage}" alt="${item.productName}">
+          <div class="cart-item-details">
+            <h3>${item.productName}</h3>
+            <p class="cart-item-price">$${item.productPrice}</p>
+          </div>
+          <div class="cart-item-actions">
+            <button class="delete-btn" data-product-id="${item.productId}" data-product-name="${item.productName}">🗑️ Remove</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('orderSummary').innerHTML = `
+        <p><strong>Total Items:</strong> ${cartItems.length}</p>
+        <p><strong>Total Amount:</strong> $${totalAmount}</p>
+      `;
+
+      totalSection.style.display = 'block';
+      emptyCart.style.display = 'none';
+      addDeleteListeners();
+    }
+
+    function showEmptyCart() {
+      document.getElementById('cartItems').innerHTML = '';
+      document.getElementById('totalSection').style.display = 'none';
+      document.getElementById('emptyCart').style.display = 'block';
+    }
+
+    function addDeleteListeners() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const productId = encodeURIComponent(this.getAttribute('data-product-id'));
+          const userEmail = localStorage.getItem('userEmail');
+          if (confirm(`Remove "${this.getAttribute('data-product-name')}" from cart?`)) {
+            const res = await fetch(`/remove-from-cart/${userEmail}/${productId}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) loadCart();
+            else alert(data.message);
+          }
+        });
+      });
+    }
+
+    let selectedPaymentMode = '';
+    document.querySelectorAll('.payment-option').forEach(option => {
+      option.addEventListener('click', function() {
+        document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedPaymentMode = this.getAttribute('data-mode');
+      });
+    });
+
+    document.getElementById('payBtn').addEventListener('click', async function() {
+      const userEmail = localStorage.getItem('userEmail');
+      const address = document.getElementById('address').value.trim();
+      if (!selectedPaymentMode) return alert('Please select a payment method');
+
+      const cartResponse = await fetch(`/get-cart/${userEmail}`);
+      const cartData = await cartResponse.json();
+      const cartItems = cartData.cartItems;
+
+      if (!cartData.success || cartItems.length === 0) return alert('Cart is empty!');
+
+      const totalAmount = document.querySelector('#orderSummary p:last-child').textContent.split('$')[1];
+      const deliveryotp = Math.floor(Math.random() * (10000000 - 10000 + 1)) + 10000;
+
+      const sellerMap = {};
+      cartItems.forEach(item => {
+        const sellerEmail = item.sellerEmail;
+        if (!sellerMap[sellerEmail]) sellerMap[sellerEmail] = [];
+        sellerMap[sellerEmail].push(item);
+      });
+
+      try {
+        const response = await fetch('/process-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: userEmail,
+            paymentMode: selectedPaymentMode,
+            address,
+            deliveryotp,
+            totalAmount,
+            sellerOrders: sellerMap
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert('🎉 Order placed successfully! Check your email.');
+          window.location.href = '/orders';
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        console.error('Error processing payment:', err);
+        alert('❌ Error processing payment. Please try again.');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateNavigation();
+      loadCart();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DeLux Mart | Home</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <img src="/images/Logo1.png" height="45px" width="50px">
+    <div class="logo">DeLux Mart</div>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/cart" id="cartLink">Cart</a></li>
+        <li><a href="/orders" id="ordersLink">Orders</a></li>
+        <li><a href="/seller-login" id="sellerLoginLink">Seller Login</a></li>
+        <li><a href="/loginpage" id="loginLink">Login</a></li>
+        <li><a href="#" id="logoutLink" style="display: none;">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Discover Your Style</h1>
+    <p>Top deals on fashion, gadgets & more</p>
+    <center><h4>Shop your Produts at lowest cost with amazing Deals</h4></center><br><br>
+    <a href="/products" class="btn">Shop Now</a>
+  </section>
+  <div></div>
+
+  <section class="products">
+    <h2>Our Info</h2>
+    <div class="product-grid">
+             <!-- Product 1 -->
+       <div class="product-card">
+         <h3>Our Office Address</h3>
+         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3830.325771478546!2d80.3214493743636!3d16.255065734437732!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a4a76e740000001%3A0xc41c8498715c6da0!2sR.V.R.%20%26%20J.C.College%20of%20Engineering!5e0!3m2!1sen!2sin!4v1754268553879!5m2!1sen!2sin" width="300" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+         <button class="cart-btn" data-product-id="watch_home1" data-product-name="Smart Watch" data-product-price="49.99" data-product-image="/images/watch.jpg" style="display: none;">Add to Cart</button>
+       </div>
+
+       <!-- Product 2 -->
+       
+       <!-- Product 3 -->
+       
+
+       <!-- Product 4 -->
+       <div class="product-card"><br><br>
+         <img src="/images/happyshopping.jpeg" alt="Happy Shopping!!!">
+         <h3>Thank You For Visiting our Site!!!<br>😊</h3>
+         <button class="cart-btn" data-product-id="headphones_home1" data-product-name="Wireless Headphones" data-product-price="39.99" data-product-image="/images/headphones.jfif" style="display:none">Add to Cart</button>
+       </div>
+       <div class="product-card">
+         <h3>Our Social Media Accounts</h3><br>
+         <h4><a href="https://www.facebook.com/rvrjcce.official/" target="_blank">Our Facebook Page</a><br></h4><br><br>
+         <h4><a href="https://www.instagram.com/rvrjcce.official/?hl=en" target="_blank">Our Instagram Page</a><br></h4><br><br>
+         <h4><a href="https://x.com/rvrjc_official?lang=en" target="_blank">Our X(Twitter) Page</a><br></h4><br><br>
+         <h4><a href="https://www.youtube.com/c/RVRJCCollegeofEngineering" target="_blank">Our Youtube Channel</a><br></h4>
+         <button class="cart-btn" data-product-id="handbag_home1" data-product-name="Leather Handbag" data-product-price="79.99" data-product-image="/images/handbag.jfif" style="display:none">Add to Cart</button>
+       </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 DeLux Mart. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Check authentication status and update navigation
+    function updateNavigation() {
+      const userEmail = localStorage.getItem('userEmail');
+      const loginLink = document.getElementById('loginLink');
+      const logoutLink = document.getElementById('logoutLink');
+      
+      if (userEmail) {
+        // User is logged in
+        loginLink.style.display = 'none';
+        logoutLink.style.display = 'inline';
+      } else {
+        // User is not logged in
+        loginLink.style.display = 'inline';
+        logoutLink.style.display = 'none';
+      }
+    }
+
+    // Logout functionality
+    document.getElementById('logoutLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userName');
+      updateNavigation();
+      window.location.href = '/';
+    });
+
+    // Add to cart functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      updateNavigation();
+      
+      // Add click event listeners to all cart buttons
+      const cartButtons = document.querySelectorAll('.cart-btn');
+      
+      cartButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+          const userEmail = localStorage.getItem('userEmail');
+          
+          if (!userEmail) {
+            alert('Please login first to add items to cart');
+            window.location.href = '/loginpage';
+            return;
+          }
+          
+          const productId = this.getAttribute('data-product-id');
+          const productName = this.getAttribute('data-product-name');
+          const productPrice = this.getAttribute('data-product-price');
+          const productImage = this.getAttribute('data-product-image');
+          
+          try {
+            const response = await fetch('/add-to-cart', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: userEmail,
+                productId,
+                productName,
+                productPrice,
+                productImage
+              })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+              // Change button text to show success
+              this.textContent = 'Added to Cart';
+              this.style.backgroundColor = '#28a745';
+              this.disabled = true;
+              
+              // Show success message
+              alert(data.message);
+            } else {
+              alert(data.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error adding product to cart. Please try again.');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              GEMINI-POWERED RECOMMENDATION SYSTEM FLOW                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          1. USER INPUT                                      │
+│                                                                             │
+│  User types in recommendation-demo.html:                                   │
+│  "I want a phone with long battery life and excellent camera"              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     2. FRONTEND (JavaScript)                                │
+│                                                                             │
+│  • Captures user input                                                     │
+│  • Reads weight sliders (w1, w2)                                           │
+│  • Sends POST request to API                                               │
+│                                                                             │
+│  Request Body:                                                             │
+│  {                                                                         │
+│    "query": "I want a phone with long battery life and excellent camera", │
+│    "w1": 0.5,                                                              │
+│    "w2": 0.5                                                               │
+│  }                                                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                  3. BACKEND API (recommendation_api.py)                     │
+│                                                                             │
+│  Step 3a: Load Valid Features                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ • Reads mobile_features.txt                                          │  │
+│  │ • Extracts 95 valid features                                         │  │
+│  │ • Stores in VALID_FEATURES set                                       │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  Step 3b: Gemini AI Feature Extraction                                     │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ • Sends query to Gemini 2.5 Flash                                   │  │
+│  │ • Gemini analyzes: "battery life and excellent camera"              │  │
+│  │ • Gemini extracts: ["battery life", "camera"]                       │  │
+│  │ • Validates against VALID_FEATURES                                  │  │
+│  │ • Returns: ["battery life", "camera"]                               │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  Step 3c: Fetch Data from MongoDB                                          │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ • Connects to MongoDB                                                │  │
+│  │ • Fetches all product reviews/comments                              │  │
+│  │ • Fetches product details                                           │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    4. PRUS ALGORITHM (PRUSRecommender)                      │
+│                                                                             │
+│  Phase 1 & 2: Process Reviews                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ For each product review:                                             │  │
+│  │   • Split into sentences                                             │  │
+│  │   • Extract noun phrases (features)                                  │  │
+│  │   • Analyze sentiment (positive/negative)                            │  │
+│  │   • Count: c(f+) and c(f-)                                           │  │
+│  │                                                                      │  │
+│  │ Example for iPhone 15 Pro Max:                                       │  │
+│  │   "battery life": {pos: 45, neg: 3}                                  │  │
+│  │   "camera": {pos: 38, neg: 5}                                        │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                             │
+│  Phase 3: RANK-ify Algorithm                                               │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │ For each product:                                                    │  │
+│  │   For each query feature ["battery life", "camera"]:                │  │
+│  │     • Find matching features in product                             │  │
+│  │     • Calculate FeaSco = (w1 × c(f+) - w2 × c(f-)) / (c(f+)+c(f-)) │  │
+│  │     • Sum all FeaSco values                                         │  │
+│  │                                                                      │  │
+│  │ Example:                                                             │  │
+│  │   iPhone 15: (0.5×45 - 0.5×3)/48 + (0.5×38 - 0.5×5)/43 = 0.82      │  │
+│  │   Samsung S23: (0.5×40 - 0.5×8)/48 + (0.5×42 - 0.5×6)/48 = 0.71    │  │
+│  │                                                                      │  │
+│  │ Sort by score (descending)                                           │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      5. FORMAT RESULTS                                      │
+│                                                                             │
+│  • Fetch full product details from MongoDB                                 │
+│  • Build response with:                                                    │
+│    - Product ID, name, image                                               │
+│    - Price, category, description                                          │
+│    - Recommendation score                                                  │
+│                                                                             │
+│  Response:                                                                 │
+│  {                                                                         │
+│    "success": true,                                                        │
+│    "query": ["battery life", "camera"],                                   │
+│    "totalProducts": 15,                                                    │
+│    "recommendations": [                                                    │
+│      {                                                                     │
+│        "productName": "iPhone 15 Pro Max",                                │
+│        "score": 0.8234,                                                   │
+│        "price": 1199,                                                     │
+│        "image": "...",                                                    │
+│        ...                                                                │
+│      },                                                                   │
+│      ...                                                                  │
+│    ]                                                                      │
+│  }                                                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    6. DISPLAY RESULTS (Frontend)                            │
+│                                                                             │
+│  • Receives JSON response                                                  │
+│  • Displays extracted features                                             │
+│  • Renders product cards in grid                                           │
+│  • Shows scores, prices, images                                            │
+│  • Sorted by recommendation score                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                            KEY COMPONENTS                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ GEMINI AI (Google)                                                          │
+│ • Model: gemini-2.5-flash                                                   │
+│ • Purpose: Extract features from natural language                           │
+│ • Input: User query string                                                  │
+│ • Output: List of valid features                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ VALID FEATURES (mobile_features.txt)                                        │
+│ • 95 features extracted from product reviews                                │
+│ • Examples: battery, camera, zoom, performance, titanium design, etc.       │
+│ • Used to validate Gemini's output                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ PRUS ALGORITHM                                                              │
+│ • Phase 1: Split reviews into sentences                                     │
+│ • Phase 2: Extract features and sentiments                                  │
+│ • Phase 3: RANK-ify - Calculate scores and rank products                    │
+│ • Formula: FeaSco = (w1 × c(f+) - w2 × c(f-)) / (c(f+) + c(f-))           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ MONGODB DATABASE                                                            │
+│ • Collection: products - Product details (name, price, image, etc.)         │
+│ • Collection: comments - User reviews for each product                      │
+│ • Connection: MongoDB Atlas cloud database                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          ERROR HANDLING                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Gemini API Fails → Fallback to keyword matching
+No features found → Return helpful error message
+MongoDB error → Return 500 error with details
+No products match → Return empty results with message
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                              END                                             ║
+╚══════════════════════════════════════════════════════════════════════════════╝

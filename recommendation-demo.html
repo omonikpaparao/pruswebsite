@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Recommendations - DeLux Mart</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2.5rem;
+    }
+
+    .search-section {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      margin-bottom: 2rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.1rem;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .weight-controls {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .weight-control {
+      flex: 1;
+    }
+
+    .weight-control label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .weight-control input[type="range"] {
+      width: 100%;
+    }
+
+    .weight-value {
+      display: inline-block;
+      margin-left: 0.5rem;
+      color: #667eea;
+      font-weight: bold;
+    }
+
+    .search-btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .search-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .results-section {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .results-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #eee;
+    }
+
+    .results-header h2 {
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .results-info {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      border: 1px solid #eee;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #f5f5f5;
+    }
+
+    .product-info {
+      padding: 1rem;
+    }
+
+    .product-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-score {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-price {
+      font-size: 1.3rem;
+      color: #667eea;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-category {
+      display: inline-block;
+      background: #f0f0f0;
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-description {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      display: -webkit-box;
+      /* -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; */
+      overflow: hidden;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .example-queries {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .example-queries h4 {
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    .example-tag {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 15px;
+      margin: 0.3rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .example-tag:hover {
+      background: #764ba2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Smart Product Recommendations</h1>
+
+    <div class="search-section">
+      <input 
+        type="text" 
+        id="searchInput" 
+        class="search-input" 
+        placeholder="Describe what you're looking for (e.g., I want a phone with good battery and camera)"
+      >
+
+      <div class="weight-controls">
+        <div class="weight-control">
+          <label>
+            Positive Weight (w1): <span class="weight-value" id="w1Value">0.5</span>
+          </label>
+          <input type="range" id="w1Slider" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <div class="weight-control">
+          <label>
+            Negative Weight (w2): <span class="weight-value" id="w2Value">0.5</span>
+          </label>
+          <input type="range" id="w2Slider" min="0" max="1" step="0.1" value="0.5">
+        </div>
+      </div>
+
+      <button id="searchBtn" class="search-btn">Get Recommendations</button>
+
+      <div class="example-queries">
+        <h4>Try these examples:</h4>
+        <span class="example-tag" onclick="setQuery('I want a phone with long battery life and good screen')">Battery & Screen</span>
+        <span class="example-tag" onclick="setQuery('Looking for a phone with excellent camera quality')">Great Camera</span>
+        <span class="example-tag" onclick="setQuery('Need a fast phone with good performance')">Fast Performance</span>
+        <span class="example-tag" onclick="setQuery('Phone with zoom camera and telephoto lens')">Zoom Camera</span>
+      </div>
+    </div>
+
+    <div class="results-section" id="resultsSection" style="display: none;">
+      <div class="results-header">
+        <h2>Recommended Products</h2>
+        <div class="results-info" id="resultsInfo"></div>
+      </div>
+      <div id="resultsContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://newprusapi.onrender.com';
+    
+    console.log('Recommendation Demo Loaded');
+    console.log('API URL:', API_URL);
+    
+    // Weight sliders
+    const w1Slider = document.getElementById('w1Slider');
+    const w2Slider = document.getElementById('w2Slider');
+    const w1Value = document.getElementById('w1Value');
+    const w2Value = document.getElementById('w2Value');
+
+    w1Slider.addEventListener('input', (e) => {
+      w1Value.textContent = e.target.value;
+    });
+
+    w2Slider.addEventListener('input', (e) => {
+      w2Value.textContent = e.target.value;
+    });
+
+    // Search functionality
+    document.getElementById('searchBtn').addEventListener('click', searchProducts);
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') searchProducts();
+    });
+
+    function setQuery(query) {
+      document.getElementById('searchInput').value = query;
+      searchProducts();
+    }
+
+    async function searchProducts() {
+      const searchInput = document.getElementById('searchInput').value.trim();
+      
+      if (!searchInput) {
+        alert('Please describe what features you\'re looking for');
+        return;
+      }
+
+      const w1 = parseFloat(w1Slider.value);
+      const w2 = parseFloat(w2Slider.value);
+
+      // Show loading
+      const resultsSection = document.getElementById('resultsSection');
+      const resultsContainer = document.getElementById('resultsContainer');
+      resultsSection.style.display = 'block';
+      resultsContainer.innerHTML = '<div class="loading">🔄 Extracting features with AI and analyzing reviews...</div>';
+
+      try {
+        const response = await fetch(`${API_URL}/api/recommend`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            query: searchInput,  // Send natural language query
+            w1: w1,
+            w2: w2
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          displayResults(data);
+        } else {
+          resultsContainer.innerHTML = `<div class="error">❌ ${data.message}</div>`;
+        }
+      } catch (error) {
+        resultsContainer.innerHTML = `
+          <div class="error">
+            ❌ Error connecting to recommendation API. 
+            <br>Make sure the API is running on ${API_URL}
+            <br>Error: ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    function displayResults(data) {
+      const resultsInfo = document.getElementById('resultsInfo');
+      const resultsContainer = document.getElementById('resultsContainer');
+
+      resultsInfo.innerHTML = `
+        Found ${data.totalProducts} products matching features: <strong>${Array.isArray(data.query) ? data.query.join(', ') : data.query}</strong>
+      `;
+
+      if (data.recommendations.length === 0) {
+        resultsContainer.innerHTML = '<div class="no-results">No products found matching your criteria</div>';
+        return;
+      }
+
+      resultsContainer.innerHTML = `
+        <div class="products-grid">
+          ${data.recommendations.map(product => `
+            <div class="product-card" onclick="viewProduct('${product.productId}')">
+              <img 
+                src="${product.image || 'https://via.placeholder.com/280x200?text=No+Image'}" 
+                alt="${product.productName}"
+                class="product-image"
+                onerror="this.src='https://via.placeholder.com/280x200?text=No+Image'"
+              >
+              <div class="product-info">
+                <div class="product-name">${product.productName}</div>
+                <div class="product-score">Score: ${product.score}</div>
+                <div class="product-price">$${product.price}</div>
+                ${product.category ? `<div class="product-category">${product.category}</div>` : ''}
+                ${product.description ? `<div class="product-description">${product.description}</div>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function viewProduct(productId) {
+      // Redirect to product page
+      window.location.href = `/product/${productId}`;
+    }
+
+    // Check API health on load
+    window.addEventListener('load', async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/health`);
+        const data = await response.json();
+        if (!data.success) {
+          console.warn('API health check failed');
+        }
+      } catch (error) {
+        console.error('Cannot connect to recommendation API:', error);
+      }
+    });
+  </script>
+</body>
+</html>

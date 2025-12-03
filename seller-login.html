@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seller Login | DeLux Mart</title>
+  <link rel="stylesheet" href="loginstyles.css" />
+</head>
+<body>
+  
+  <section class="login-section">
+    
+    <div class="login-box">
+        <button class="buon"><a href="/">Go Back</a></button>
+      <h2>🔐 Seller Login</h2>
+      <form id="sellerLoginForm">
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required placeholder="example@gmail.com" />
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="seller123" />
+        </div>
+        <button type="submit" class="login-btn">Login as Seller</button>
+        Don't Have an Seller Account??<a href="/sellersignup">Sign Up</a>
+      </form>
+      <div id="message" style="margin-top: 1rem; padding: 0.5rem; border-radius: 5px; display: none;"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 DeLux Mart. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('sellerLoginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const messageDiv = document.getElementById('message');
+      
+      try {
+        const response = await fetch('/seller-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Store seller info in localStorage
+          localStorage.setItem('sellerEmail', data.user.email);
+          localStorage.setItem('sellerName', data.user.name);
+          
+          // Show success message
+          messageDiv.style.display = 'block';
+          messageDiv.style.backgroundColor = '#d4edda';
+          messageDiv.style.color = '#155724';
+          messageDiv.style.border = '1px solid #c3e6cb';
+          messageDiv.textContent = data.message;
+          
+          // Redirect to seller dashboard after 1 second
+          setTimeout(() => {
+            window.location.href = '/seller-dashboard';
+          }, 1000);
+        } else {
+          // Show error message
+          messageDiv.style.display = 'block';
+          messageDiv.style.backgroundColor = '#f8d7da';
+          messageDiv.style.color = '#721c24';
+          messageDiv.style.border = '1px solid #f5c6cb';
+          messageDiv.textContent = data.message;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        messageDiv.style.display = 'block';
+        messageDiv.style.backgroundColor = '#f8d7da';
+        messageDiv.style.color = '#721c24';
+        messageDiv.style.border = '1px solid #f5c6cb';
+        messageDiv.textContent = '❌ Network error. Please try again.';
+      }
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Orders | DeLux Mart</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .orders-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .item-status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 500;
+      margin-top: 5px;
+    }
+    
+    .status-accepted {
+      background-color: #e3f2fd;
+      color: #0d47a1;
+    }
+    
+    .status-delivered {
+      background-color: #e8f5e9;
+      color: #1b5e20;
+    }
+    
+    .status-confirmed {
+      background-color: #fff8e1;
+      color: #ff6f00;
+    }
+    .order-card {
+      background: white;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    .order-date {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .order-status {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .status-confirmed {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status-processing {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .status-accepted {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status-delivered {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    .status-cancelled {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .status-partially-cancelled {
+      background: #fff3cd;
+      color: #856404;
+    }
+    .cancelled-item {
+      opacity: 0.7;
+      position: relative;
+    }
+    .item-cancelled {
+      color: #dc3545;
+      font-size: 0.8em;
+      font-weight: normal;
+    }
+    .cancellation-note {
+      color: #dc3545;
+      font-size: 0.8em;
+      font-style: italic;
+    }
+    .order-items {
+      margin: 1rem 0;
+    }
+    .order-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .order-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-right: 1rem;
+    }
+    .order-item-details {
+      flex: 1;
+    }
+    .order-item-price {
+      font-weight: bold;
+      color: #28a745;
+    }
+    .order-total {
+      text-align: right;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #28a745;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 2px solid #eee;
+    }
+    .payment-info {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 5px;
+    }
+    .empty-orders {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+    .delivery-otp {
+      background-color: #e8f5e9;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      border-left: 4px solid #4caf50;
+    }
+    .otp-value {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #2e7d32;
+      letter-spacing: 2px;
+      background: #f1f8e9;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .otp-note {
+      font-size: 0.85em;
+      color: #555;
+      font-style: italic;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/images/Logo1.png" height="45px" width="50px">
+    <div class="logo">DeLux Mart</div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/cart" id="cartLink">Cart</a></li>
+        <li><a href="/orders" id="ordersLink" class="active">Orders</a></li>
+        <li><a href="/loginpage" id="loginLink">Login</a></li>
+        <li><a href="#" id="logoutLink" style="display: none;">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="orders-container">
+    <h1>📦 Your Orders</h1>
+    
+    <div id="ordersList">
+      <!-- Orders will be loaded here -->
+    </div>
+
+    <div id="emptyOrders" class="empty-orders" style="display: none;">
+      <h2>📦 No orders yet</h2>
+      <p>Start shopping to see your order history!</p>
+      <a href="/products" class="btn">Start Shopping</a>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 DeLux Mart. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Check authentication status and update navigation
+    function updateNavigation() {
+      const userEmail = localStorage.getItem('userEmail');
+      const loginLink = document.getElementById('loginLink');
+      const logoutLink = document.getElementById('logoutLink');
+      
+      if (userEmail) {
+        loginLink.style.display = 'none';
+        logoutLink.style.display = 'inline';
+      } else {
+        loginLink.style.display = 'inline';
+        logoutLink.style.display = 'none';
+        window.location.href = '/loginpage';
+      }
+    }
+
+    // Logout functionality
+    document.getElementById('logoutLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userName');
+      updateNavigation();
+      window.location.href = '/';
+    });
+
+    // Load orders
+    async function loadOrders() {
+      const userEmail = localStorage.getItem('userEmail');
+      if (!userEmail) {
+        window.location.href = '/loginpage';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/get-orders/${userEmail}`);
+        const data = await response.json();
+
+        if (data.success) {
+          displayOrders(data.orders);
+        } else {
+          showEmptyOrders();
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        showEmptyOrders();
+      }
+    }
+
+    function displayOrders(orders) {
+      const ordersContainer = document.getElementById('ordersList');
+      const emptyOrders = document.getElementById('emptyOrders');
+
+      if (orders.length === 0) {
+        showEmptyOrders();
+        return;
+      }
+
+      ordersContainer.innerHTML = orders.map(order => {
+  const orderDate = new Date(order.orderDate).toLocaleDateString();
+
+  // Calculate the total from non-cancelled items to ensure it's up-to-date
+  const totalAmount = order.items.reduce((sum, item) => {
+    // Check if this item is marked as cancelled directly or if the seller has cancelled
+    const sellerOrder = order.sellerOrders ? order.sellerOrders.find(so => so.sellerEmail === item.sellerEmail) : null;
+    // An item is cancelled if it has the cancelled flag or if its seller's order is cancelled
+    const isCancelled = item.cancelled || (sellerOrder && sellerOrder.deliveryStatus === 'Cancelled');
+    
+    if (isCancelled) return sum;
+    
+    const price = parseFloat(item.productPrice) || 0;
+    const quantity = parseInt(item.quantity) || 1;
+    return sum + price * quantity;
+  }, 0);
+  
+  // Determine the display status based on the main order status and cancellations
+  let displayStatus = order.deliveryStatus;
+  let statusClass = order.deliveryStatus.toLowerCase();
+  
+  // If the order status is already 'Cancelled', keep it that way
+  if (displayStatus === 'Cancelled') {
+    statusClass = 'cancelled';
+  }
+  // If the order is accepted or delivered, show that status
+  else if (displayStatus === 'Accepted' || displayStatus === 'Delivered') {
+    // Keep the original status
+  }
+  // Check if all items in the order are cancelled
+  else if (order.items.every(item => item.cancelled)) {
+    displayStatus = 'Cancelled';
+    statusClass = 'cancelled';
+  }
+  // If there are some cancellations but not all, use the main order status
+  else if (order.hasCancellations) {
+    // Use the main order status
+    displayStatus = order.deliveryStatus || 'Confirmed';
+    statusClass = (order.deliveryStatus || 'confirmed').toLowerCase();
+  }
+
+  return `
+    <div class="order-card">
+      <div class="order-header">
+        <div>
+          <h3>Order #${order._id.toString()}</h3>
+          <p class="order-date">Ordered on: ${orderDate}</p>
+        </div>
+        <div>
+          <span class="order-status status-${statusClass}">${displayStatus}</span>
+        </div>
+      </div>
+
+      <div class="order-items">
+        ${order.items.map(item => {
+          // Check if this item is marked as cancelled directly or if the seller has cancelled
+          const sellerOrder = order.sellerOrders ? order.sellerOrders.find(so => so.sellerEmail === item.sellerEmail) : null;
+          // An item is cancelled if it has the cancelled flag or if its seller's order is cancelled
+          const isCancelled = item.cancelled || (sellerOrder && sellerOrder.deliveryStatus === 'Cancelled');
+          
+          return `
+          <div class="order-item ${isCancelled ? 'cancelled-item' : ''}">
+            <img src="${item.productImage}" alt="${item.productName}">
+            <div class="order-item-details">
+              <h4>${item.productName} ${isCancelled ? '<span class="item-cancelled">(Cancelled by Seller)</span>' : ''}</h4>
+              <p class="order-item-price">$${item.productPrice} × ${item.quantity || 1}</p>
+              ${isCancelled ? 
+                '<p class="cancellation-note">This item has been cancelled by the seller</p>' : 
+                item.status ? 
+                  `<p class="item-status status-${item.status.toLowerCase()}">Status: ${item.status}</p>` : 
+                  sellerOrder ? 
+                    `<p class="item-status status-${sellerOrder.deliveryStatus.toLowerCase()}">Status: ${sellerOrder.deliveryStatus}</p>` : 
+                    ''
+              }
+            </div>
+          </div>
+        `}).join('')}
+      </div>
+
+      <div class="payment-info">
+        <p><strong>Payment Mode:</strong> ${order.paymentMode}</p>
+        <p><strong>Order Status:</strong> ${order.status}</p>
+        ${order.deliveryotp ? 
+          `<p class="delivery-otp"><strong>Delivery OTP:</strong> <span class="otp-value">${order.deliveryotp}</span> <span class="otp-note">(Share this OTP with the delivery person to confirm delivery)</span></p>` : ''}
+        ${order.hasCancellations ? 
+          `<p class="cancellation-note"><strong>Note:</strong> ${order.cancelledSellers} out of ${order.totalSellers} seller(s) have cancelled their items. The total has been adjusted accordingly.</p>` : ''}
+      </div>
+
+      <div class="order-total">
+        Total: $${totalAmount.toFixed(2)}
+      </div>
+    </div>
+  `;
+}).join('');
+
+emptyOrders.style.display = 'none';
+
+    }
+
+    function showEmptyOrders() {
+      document.getElementById('ordersList').innerHTML = '';
+      document.getElementById('emptyOrders').style.display = 'block';
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      updateNavigation();
+      loadOrders();
+    });
+  </script>
+</body>
+</html>
