@@ -25,12 +25,21 @@ app.use(express.json());
 
 // Email configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: "smtp.gmail.com", // e.g., smtp.gmail.com
+  port: 587,                // Use 587 or 465. DO NOT use 25.
+  secure: false,            // true for 465, false for other ports
   auth: {
-    user: 'v647414@gmail.com',
-    pass: 'vpid tvwa dony qkyr'
-  }
+    user:"v647414@gmail.com",
+    pass:"vpid tvwa dony qkyr",
+  },
 });
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: 'v647414@gmail.com',
+//     pass: 'vpid tvwa dony qkyr'
+//   }
+// });
 
 
 // Connect to MongoDB and define routes inside
